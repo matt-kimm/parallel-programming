@@ -1,0 +1,8 @@
+laba-MPI.cpp: In function ‘int main(int, char**)’:
+laba-MPI.cpp:169:18: error: aggregate ‘std::ofstream outfile’ has incomplete type and cannot be defined
+  169 |         ofstream outfile;
+      |                  ^~~~~~~
+laba-MPI.cpp:6:1: note: ‘std::ofstream’ is defined in header ‘<fstream>’; this is probably fixable by adding ‘#include <fstream>’
+    5 | #include <iomanip>
+  +++ |+#include <fstream>
+    6 | 
