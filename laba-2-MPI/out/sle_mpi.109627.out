@@ -1,0 +1,23 @@
+Compiling MPI code...
+--------------------------------------
+SLURM allocated nodes : 4
+SLURM allocated tasks : 16
+Node list: gpn-node[14-15,18-19]
+--------------------------------------
+Running MPI program...
+
+=== Problem size N = 500 ===
+Time: 2.05691 s
+Solution[0]: 0.334443
+
+=== Problem size N = 1000 ===
+Time: 1.45801 s
+Solution[0]: 0.333886
+
+=== Problem size N = 2000 ===
+Time: 1.33666 s
+Solution[0]: 0.333608
+
+=== Problem size N = 4000 ===
+Time: 2.26161 s
+Solution[0]: 0.333469

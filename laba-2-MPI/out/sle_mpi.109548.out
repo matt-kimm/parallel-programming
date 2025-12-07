@@ -1,0 +1,8 @@
+Compiling MPI code...
+--------------------------------------
+SLURM allocated nodes : 4
+SLURM allocated tasks : 16
+Node list: gpn-node[13-15,18]
+--------------------------------------
+Running MPI program...
+8 total processes failed to start

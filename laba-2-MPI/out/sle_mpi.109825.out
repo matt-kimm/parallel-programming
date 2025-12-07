@@ -1,0 +1,12 @@
+Compiling MPI code...
+--------------------------------------
+SLURM allocated nodes : 4
+SLURM allocated tasks : 16
+Node list: gpn-node[14-15,18-19]
+--------------------------------------
+Running MPI program...
+Iteration 0, error = 14.9254
+Converged after 24 iterations
+
+Solution x (first 10 elements):
+1 1 1 1 1 1 1 1 1 1 

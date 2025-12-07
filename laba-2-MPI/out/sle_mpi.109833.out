@@ -1,0 +1,19 @@
+Compiling MPI code...
+--------------------------------------
+SLURM allocated nodes : 4
+SLURM allocated tasks : 16
+Node list: gpn-node[14-15,18-19]
+--------------------------------------
+Running MPI program...
+Iteration 0, error = 149.993
+Converged after 28 iterations
+
+Saved result: 16 processes, N=10000, time=0.567514s
+
+
+Performance Table for N = 10000:
+Threads              N     Time, s      Speedup S     Efficiency, %
+--------------------------------------------------------------------
+     16          10000     0.56751         N/A              N/A
+
+Results also saved to performance_results.csv
