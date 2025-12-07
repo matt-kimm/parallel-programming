@@ -1,4 +1,4 @@
-Threads,N,Time(s),Speedup,Efficiency(%)
+Processes,N,Time(s),Speedup,Efficiency(%)
 1,10000,3.46114,1,100
 2,10000,1.80221,1.9205,96.0249
 4,10000,0.910881,3.79977,94.9943
