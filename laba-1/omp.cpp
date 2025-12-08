@@ -2,54 +2,45 @@
 #include <vector>
 #include <cmath>
 #include <omp.h>
-#include <iomanip>
+#include <iomanip>  // для setw и setprecision
 
 using namespace std;
 
 int main() {
-    int N = 100;          // размер системы
+    int N = 10000;          // размер системы
     double tol = 1e-6;    // точность
     int max_iter = 10000; // максимум итераций
-    
-    // Векторы для хранения результатов тестирования
-    vector<int> thread_counts = {1, 2, 4, 8, 16};
-    vector<double> execution_times;
-    
-    // Заголовок таблицы
-    cout << "\n Threads              N     Time, s      Speedup S     Efficiency, %\n";
-    cout << "--------------------------------------------------------------------\n";
-    
-    // Тестирование для разного количества потоков
-    for (int num_threads : thread_counts) {
+
+    vector<vector<double>> A(N, vector<double>(N, 1.0));
+    for (int i = 0; i < N; i++)
+        A[i][i] = 2 * N + 1;
+
+    vector<double> x(N, 1.0);
+    vector<double> b(N, 0.0);
+
+#pragma omp parallel for
+    for (int i = 0; i < N; i++) {
+        double s = 0;
+        for (int j = 0; j < N; j++)
+            s += A[i][j] * x[j];
+        b[i] = s;
+    }
+
+    int threads_list[] = { 1, 2, 4, 8, 16 };
+    double times[5] = { 0 };
+
+    for (int t = 0; t < 5; t++) {
+        int num_threads = threads_list[t];
         omp_set_num_threads(num_threads);
-        
-        // Инициализация матрицы A
-        vector<vector<double>> A(N, vector<double>(N, 1.0));
-        for (int i = 0; i < N; i++)
-            A[i][i] = 2 * N + 1;
-
-        // Выбираем некоторый вектор x для построения b = A*x (исходный вектор)
-        vector<double> x(N, 1.0);
-        vector<double> b(N, 0.0);
-
-        // Вычисляем b = A*x параллельно
-        #pragma omp parallel for
-        for (int i = 0; i < N; i++) {
-            double s = 0;
-            for (int j = 0; j < N; j++)
-                s += A[i][j] * x[j];
-            b[i] = s;
-        }
-
-        // "Забываем" x и начинаем итерационный процесс с нулевого вектора
         fill(x.begin(), x.end(), 0.0);
-        
+
         double start_time = omp_get_wtime();
 
-        for (int iter = 0; iter < max_iter; iter++) {
+        int iter;
+        double final_max_diff = 0.0;
+        for (iter = 0; iter < max_iter; iter++) {
             double max_diff = 0.0;
-
-            #pragma omp parallel for reduction(max:max_diff)
+#pragma omp parallel for reduction(max:max_diff)
             for (int i = 0; i < N; i++) {
                 double sum = 0.0;
                 for (int j = 0; j < N; j++) {
@@ -59,39 +50,37 @@ int main() {
                 double x_new = (b[i] - sum) / A[i][i];
                 double diff = fabs(x_new - x[i]);
                 if (diff > max_diff) max_diff = diff;
-                x[i] = x_new;  // обновление "на месте"
+                x[i] = x_new;
             }
-
             if (max_diff < tol) {
-                //cout << "Converged after " << iter << " iterations with error " << max_diff << endl;
+                final_max_diff = max_diff;
                 break;
             }
         }
-        
         double end_time = omp_get_wtime();
-        double elapsed_time = end_time - start_time;
-        execution_times.push_back(elapsed_time);
+        times[t] = end_time - start_time;
     }
-    
-    // Вывод таблицы результатов
-    double single_thread_time = execution_times[0];
-    
-    for (size_t i = 0; i < thread_counts.size(); i++) {
-        int threads = thread_counts[i];
-        double time = execution_times[i];
-        double speedup = single_thread_time / time;
-        double efficiency = (speedup / threads) * 100;
-        
-        cout << setw(7) << threads << "           "
-             << setw(5) << N << "     "
-             << fixed << setprecision(5) << setw(8) << time << "      "
-             << setw(6) << setprecision(2) << speedup << "        "
-             << setw(7) << setprecision(1) << efficiency << endl;
+
+    // Вывод таблицы
+    cout << setw(8) << "Threads"
+        << setw(15) << "N"
+        << setw(12) << "Time, s"
+        << setw(15) << "Speedup S"
+        << setw(18) << "Efficiency, %" << endl;
+
+    cout << string(68, '-') << endl;
+
+    for (int t = 0; t < 5; t++) {
+        double speedup = times[0] / times[t];
+        double efficiency = speedup / threads_list[t] * 100.0;
+
+        cout << setw(8) << threads_list[t]
+            << setw(15) << N
+            << setw(12) << fixed << setprecision(5) << times[t]
+            << setw(15) << fixed << setprecision(2) << speedup
+            << setw(17) << fixed << setprecision(1) << efficiency
+            << endl;
     }
-    
-    // Вывод информации о сходимости
-    cout << "\nNote: System size N = " << N << ", tolerance = " << tol 
-         << ", max iterations = " << max_iter << endl;
 
     return 0;
 }
