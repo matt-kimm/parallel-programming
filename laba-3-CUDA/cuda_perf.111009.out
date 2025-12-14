@@ -1,0 +1,119 @@
+=== CUDA Jacobi Performance Analysis ===
+Job ID: 111009
+Host: gpn-node20
+Start: Sun Dec 14 22:43:54 +07 2025
+
+=== Compiling ===
+? Compilation successful!
+
+=== Generating performance table ===
+This will test:
+  Matrix sizes: 100, 500, 1000, 2000
+  Threads per block: 128, 256, 512
+
+=== CUDA Jacobi Solver Performance Analysis ===
+
+GPU Information:
+  Name: Quadro RTX 4000
+  Compute Capability: 7.5
+  Global Memory: 7.60669 GB
+  Max Threads per Block: 1024
+
+Generating performance table...
+Matrix sizes: 100, 500, 1000, 2000
+Thread configurations: 128, 256, 512
+
+================================================================================
+PERFORMANCE TABLE: Time(s) | Speedup | Efficiency(%)
+================================================================================
+
+Matrix Size: 100x100
+------------------------------------------------------------
+Threads   Time(s)        Speedup     Efficiency(%)  
+------------------------------------------------------------
+128       1.380354       0.000       0.05           
+256       0.000688       1.000       50.00          
+512       0.000690       0.998       24.95          
+------------------------------------------------------------
+
+Matrix Size: 500x500
+------------------------------------------------------------
+Threads   Time(s)        Speedup     Efficiency(%)  
+------------------------------------------------------------
+128       0.001694       1.000       100.00         
+256       0.002883       0.588       29.38          
+512       0.005266       0.322       8.04           
+------------------------------------------------------------
+
+Matrix Size: 1000x1000
+------------------------------------------------------------
+Threads   Time(s)        Speedup     Efficiency(%)  
+------------------------------------------------------------
+128       0.003549       1.000       100.00         
+256       0.006391       0.555       27.77          
+512       0.012413       0.286       7.15           
+------------------------------------------------------------
+
+Matrix Size: 2000x2000
+------------------------------------------------------------
+Threads   Time(s)        Speedup     Efficiency(%)  
+------------------------------------------------------------
+128       0.007950       1.000       100.00         
+256       0.014839       0.536       26.79          
+512       0.028115       0.283       7.07           
+------------------------------------------------------------
+
+Table saved to: performance_table.txt
+CSV data saved to: performance_results.csv
+
+=== Analysis completed ===
+
+=== Quick verification tests ===
+Test 1: 1000x1000 matrix, 256 threads
+=== CUDA Jacobi Solver Performance Analysis ===
+
+GPU Information:
+  Name: Quadro RTX 4000
+  Compute Capability: 7.5
+  Global Memory: 7.60669 GB
+  Max Threads per Block: 1024
+
+Single experiment:
+  Matrix: 1000x1000
+  Threads: 256
+  Converged after 26 iterations
+
+Results:
+  Time(s): 0.007943
+  Blocks: 4
+  Total threads: 1024
+
+=== Analysis completed ===
+
+Test 2: 500x500 matrix, 128 threads
+=== CUDA Jacobi Solver Performance Analysis ===
+
+GPU Information:
+  Name: Quadro RTX 4000
+  Compute Capability: 7.5
+  Global Memory: 7.60669 GB
+  Max Threads per Block: 1024
+
+Single experiment:
+  Matrix: 500x500
+  Threads: 128
+  Converged after 25 iterations
+
+Results:
+  Time(s): 0.002652
+  Blocks: 4
+  Total threads: 512
+
+=== Analysis completed ===
+
+=== Generated files ===
+-rw-rw-r-- 1 mag mag  403 Dec 14 22:43 performance_results.csv
+-rw-rw-r-- 1 mag mag 1804 Dec 14 22:43 performance_table.txt
+
+=== Job completed ===
+End: Sun Dec 14 22:43:58 +07 2025
