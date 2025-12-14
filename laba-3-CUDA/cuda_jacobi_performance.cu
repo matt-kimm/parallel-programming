@@ -9,7 +9,7 @@
 
 using namespace std;
 
-// Ядро для вычисления новой итерации (метод Якоби)
+// РЇРґСЂРѕ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РЅРѕРІРѕР№ РёС‚РµСЂР°С†РёРё (РјРµС‚РѕРґ РЇРєРѕР±Рё)
 __global__ void jacobi_kernel(
     const double* A,
     const double* b,
@@ -40,17 +40,17 @@ __global__ void jacobi_kernel(
         } \
     } while(0)
 
-// Функция для запуска одного эксперимента
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ Р·Р°РїСѓСЃРєР° РѕРґРЅРѕРіРѕ СЌРєСЃРїРµСЂРёРјРµРЅС‚Р°
 double run_experiment(int N, int threads, bool verbose = false) {
     double tol = 1e-6;
     int max_iter = 1000;
     
-    // Инициализация данных
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РґР°РЅРЅС‹С…
     vector<double> A(N * N);
     vector<double> b(N);
     vector<double> x(N, 0.0);
     
-    // Заполнение матрицы (диагонально доминирующая)
+    // Р—Р°РїРѕР»РЅРµРЅРёРµ РјР°С‚СЂРёС†С‹ (РґРёР°РіРѕРЅР°Р»СЊРЅРѕ РґРѕРјРёРЅРёСЂСѓСЋС‰Р°СЏ)
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             A[i * N + j] = (i == j) ? (2.0 * N + 1.0) : 1.0;
@@ -58,27 +58,27 @@ double run_experiment(int N, int threads, bool verbose = false) {
         b[i] = (2.0 * N + 1.0) + (N - 1) * 1.0;
     }
     
-    // Выделение памяти на GPU
+    // Р’С‹РґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё РЅР° GPU
     double *d_A, *d_b, *d_x_old, *d_x_new;
     CHECK_CUDA_ERROR(cudaMalloc(&d_A, N * N * sizeof(double)));
     CHECK_CUDA_ERROR(cudaMalloc(&d_b, N * sizeof(double)));
     CHECK_CUDA_ERROR(cudaMalloc(&d_x_old, N * sizeof(double)));
     CHECK_CUDA_ERROR(cudaMalloc(&d_x_new, N * sizeof(double)));
     
-    // Копирование данных на GPU
+    // РљРѕРїРёСЂРѕРІР°РЅРёРµ РґР°РЅРЅС‹С… РЅР° GPU
     CHECK_CUDA_ERROR(cudaMemcpy(d_A, A.data(), N * N * sizeof(double), cudaMemcpyHostToDevice));
     CHECK_CUDA_ERROR(cudaMemcpy(d_b, b.data(), N * sizeof(double), cudaMemcpyHostToDevice));
     CHECK_CUDA_ERROR(cudaMemcpy(d_x_old, x.data(), N * sizeof(double), cudaMemcpyHostToDevice));
     
     int blocks = (N + threads - 1) / threads;
     
-    // Замер времени
+    // Р—Р°РјРµСЂ РІСЂРµРјРµРЅРё
     cudaEvent_t start, stop;
     CHECK_CUDA_ERROR(cudaEventCreate(&start));
     CHECK_CUDA_ERROR(cudaEventCreate(&stop));
     CHECK_CUDA_ERROR(cudaEventRecord(start, 0));
     
-    // Итерационный процесс
+    // РС‚РµСЂР°С†РёРѕРЅРЅС‹Р№ РїСЂРѕС†РµСЃСЃ
     vector<double> x_new_host(N);
     vector<double> x_old_host(N);
     
@@ -86,7 +86,7 @@ double run_experiment(int N, int threads, bool verbose = false) {
         jacobi_kernel<<<blocks, threads>>>(d_A, d_b, d_x_old, d_x_new, N);
         CHECK_CUDA_ERROR(cudaDeviceSynchronize());
         
-        // Host reduction для вычисления нормы
+        // Host reduction РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РЅРѕСЂРјС‹
         CHECK_CUDA_ERROR(cudaMemcpy(x_new_host.data(), d_x_new, N * sizeof(double), cudaMemcpyDeviceToHost));
         CHECK_CUDA_ERROR(cudaMemcpy(x_old_host.data(), d_x_old, N * sizeof(double), cudaMemcpyDeviceToHost));
         
@@ -104,7 +104,7 @@ double run_experiment(int N, int threads, bool verbose = false) {
             break;
         }
         
-        // Обмен указателей
+        // РћР±РјРµРЅ СѓРєР°Р·Р°С‚РµР»РµР№
         swap(d_x_old, d_x_new);
     }
     
@@ -115,7 +115,7 @@ double run_experiment(int N, int threads, bool verbose = false) {
     CHECK_CUDA_ERROR(cudaEventElapsedTime(&gpu_time_ms, start, stop));
     double execution_time = gpu_time_ms / 1000.0;
     
-    // Освобождение памяти
+    // РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ РїР°РјСЏС‚Рё
     CHECK_CUDA_ERROR(cudaFree(d_A));
     CHECK_CUDA_ERROR(cudaFree(d_b));
     CHECK_CUDA_ERROR(cudaFree(d_x_old));
@@ -126,7 +126,7 @@ double run_experiment(int N, int threads, bool verbose = false) {
     return execution_time;
 }
 
-// Функция для вывода таблицы Time(s) | Speedup | Efficiency(%)
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РІС‹РІРѕРґР° С‚Р°Р±Р»РёС†С‹ Time(s) | Speedup | Efficiency(%)
 void print_performance_table() {
     vector<int> matrix_sizes = {100, 500, 1000, 2000};
     vector<int> thread_configs = {128, 256, 512};
@@ -135,9 +135,9 @@ void print_performance_table() {
     cout << "PERFORMANCE TABLE: Time(s) | Speedup | Efficiency(%)" << endl;
     cout << string(80, '=') << endl;
     
-    // Для каждого размера матрицы выводим отдельную таблицу
+    // Р”Р»СЏ РєР°Р¶РґРѕРіРѕ СЂР°Р·РјРµСЂР° РјР°С‚СЂРёС†С‹ РІС‹РІРѕРґРёРј РѕС‚РґРµР»СЊРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ
     for (int N : matrix_sizes) {
-        if (N > 2000) continue; // Пропускаем большие матрицы если нет памяти
+        if (N > 2000) continue; // РџСЂРѕРїСѓСЃРєР°РµРј Р±РѕР»СЊС€РёРµ РјР°С‚СЂРёС†С‹ РµСЃР»Рё РЅРµС‚ РїР°РјСЏС‚Рё
         
         cout << "\nMatrix Size: " << N << "x" << N << endl;
         cout << string(60, '-') << endl;
@@ -147,22 +147,22 @@ void print_performance_table() {
              << setw(15) << "Efficiency(%)" << endl;
         cout << string(60, '-') << endl;
         
-        // Запускаем эксперименты для всех конфигураций потоков для ЭТОЙ матрицы
+        // Р—Р°РїСѓСЃРєР°РµРј СЌРєСЃРїРµСЂРёРјРµРЅС‚С‹ РґР»СЏ РІСЃРµС… РєРѕРЅС„РёРіСѓСЂР°С†РёР№ РїРѕС‚РѕРєРѕРІ РґР»СЏ Р­РўРћР™ РјР°С‚СЂРёС†С‹
         vector<double> times;
         for (int threads : thread_configs) {
             double time = run_experiment(N, threads, false);
             times.push_back(time);
         }
         
-        // Находим лучшее время для ЭТОЙ матрицы
+        // РќР°С…РѕРґРёРј Р»СѓС‡С€РµРµ РІСЂРµРјСЏ РґР»СЏ Р­РўРћР™ РјР°С‚СЂРёС†С‹
         double best_time = *min_element(times.begin(), times.end());
         
-        // Выводим результаты для ЭТОЙ матрицы
+        // Р’С‹РІРѕРґРёРј СЂРµР·СѓР»СЊС‚Р°С‚С‹ РґР»СЏ Р­РўРћР™ РјР°С‚СЂРёС†С‹
         for (size_t i = 0; i < thread_configs.size(); i++) {
             int threads = thread_configs[i];
             double time = times[i];
-            double speedup = best_time / time;  // Ускорение относительно лучшего времени для ЭТОЙ матрицы
-            double efficiency = (speedup / threads) * 100.0 * 128;  // Нормализуем к 128 потокам
+            double speedup = best_time / time;  // РЈСЃРєРѕСЂРµРЅРёРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ Р»СѓС‡С€РµРіРѕ РІСЂРµРјРµРЅРё РґР»СЏ Р­РўРћР™ РјР°С‚СЂРёС†С‹
+            double efficiency = (speedup / threads) * 100.0 * 128;  // РќРѕСЂРјР°Р»РёР·СѓРµРј Рє 128 РїРѕС‚РѕРєР°Рј
             
             cout << left << setw(10) << threads
                  << fixed << setprecision(6) << setw(15) << time
@@ -172,7 +172,7 @@ void print_performance_table() {
         cout << string(60, '-') << endl;
     }
     
-    // Сохраняем таблицу в файл
+    // РЎРѕС…СЂР°РЅСЏРµРј С‚Р°Р±Р»РёС†Сѓ РІ С„Р°Р№Р»
     ofstream table_file("performance_table.txt");
     if (table_file.is_open()) {
         table_file << "CUDA Jacobi Solver Performance Table\n";
@@ -190,7 +190,7 @@ void print_performance_table() {
                       << setw(15) << "Efficiency(%)" << "\n";
             table_file << string(60, '-') << "\n";
             
-            // Запускаем эксперименты для файла
+            // Р—Р°РїСѓСЃРєР°РµРј СЌРєСЃРїРµСЂРёРјРµРЅС‚С‹ РґР»СЏ С„Р°Р№Р»Р°
             vector<double> times;
             for (int threads : thread_configs) {
                 double time = run_experiment(N, threads, false);
@@ -216,7 +216,7 @@ void print_performance_table() {
         cout << "\nTable saved to: performance_table.txt" << endl;
     }
     
-    // Сохраняем в CSV
+    // РЎРѕС…СЂР°РЅСЏРµРј РІ CSV
     ofstream csv_file("performance_results.csv");
     if (csv_file.is_open()) {
         csv_file << "MatrixSize,Threads,Time(s),Speedup,Efficiency(%)\n";
@@ -252,7 +252,7 @@ void print_performance_table() {
 int main(int argc, char* argv[]) {
     cout << "=== CUDA Jacobi Solver Performance Analysis ===" << endl;
     
-    // Получение информации о GPU
+    // РџРѕР»СѓС‡РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё Рѕ GPU
     int device_id;
     cudaGetDevice(&device_id);
     cudaDeviceProp prop;
@@ -265,7 +265,7 @@ int main(int argc, char* argv[]) {
     cout << "  Max Threads per Block: " << prop.maxThreadsPerBlock << endl;
     
     if (argc >= 3) {
-        // Режим запуска с параметрами
+        // Р РµР¶РёРј Р·Р°РїСѓСЃРєР° СЃ РїР°СЂР°РјРµС‚СЂР°РјРё
         int N = atoi(argv[1]);
         int threads = atoi(argv[2]);
         
@@ -278,13 +278,13 @@ int main(int argc, char* argv[]) {
         cout << "\nResults:" << endl;
         cout << "  Time(s): " << fixed << setprecision(6) << time << endl;
         
-        // Вычисляем blocks
+        // Р’С‹С‡РёСЃР»СЏРµРј blocks
         int blocks = (N + threads - 1) / threads;
         cout << "  Blocks: " << blocks << endl;
         cout << "  Total threads: " << blocks * threads << endl;
         
     } else {
-        // Режим генерации таблицы
+        // Р РµР¶РёРј РіРµРЅРµСЂР°С†РёРё С‚Р°Р±Р»РёС†С‹
         cout << "\nGenerating performance table..." << endl;
         cout << "Matrix sizes: 100, 500, 1000, 2000" << endl;
         cout << "Thread configurations: 128, 256, 512" << endl;
