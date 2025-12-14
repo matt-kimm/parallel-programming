@@ -15,7 +15,7 @@ echo "Host: $(hostname)"
 echo "Start: $(date)"
 echo ""
 
-# Íàñòðîéêà CUDA
+# ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° CUDA
 export PATH=/usr/local/cuda/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
@@ -23,7 +23,7 @@ echo "=== Compiling ==="
 nvcc -o cuda_jacobi_performance cuda_jacobi_performance.cu -O2
 
 if [ $? -eq 0 ]; then
-    echo "? Compilation successful!"
+    echo "âœ“ Compilation successful!"
     echo ""
     
     echo "=== Generating performance table ==="
@@ -32,13 +32,13 @@ if [ $? -eq 0 ]; then
     echo "  Threads per block: 128, 256, 512"
     echo ""
     
-    # Çàïóñêàåì ãåíåðàöèþ òàáëèöû
+    # Ð—Ð°Ð¿ÑƒÑÐºÐ°ÐµÐ¼ Ð³ÐµÐ½ÐµÑ€Ð°Ñ†Ð¸ÑŽ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹
     ./cuda_jacobi_performance
     
     echo ""
     echo "=== Quick verification tests ==="
     
-    # Áûñòðûå ïðîâåðî÷íûå òåñòû
+    # Ð‘Ñ‹ÑÑ‚Ñ€Ñ‹Ðµ Ð¿Ñ€Ð¾Ð²ÐµÑ€Ð¾Ñ‡Ð½Ñ‹Ðµ Ñ‚ÐµÑÑ‚Ñ‹
     echo "Test 1: 1000x1000 matrix, 256 threads"
     ./cuda_jacobi_performance 1000 256
     
@@ -51,11 +51,11 @@ if [ $? -eq 0 ]; then
     ls -la performance_table.txt performance_results.csv 2>/dev/null || echo "No output files yet"
     
 else
-    echo "? Compilation failed!"
+    echo "âœ— Compilation failed!"
     echo "Trying with architecture flag..."
     nvcc -o cuda_jacobi_performance cuda_jacobi_performance.cu -O2 -arch=sm_75
     if [ $? -eq 0 ]; then
-        echo "? Compilation successful with arch flag!"
+        echo "âœ“ Compilation successful with arch flag!"
         ./cuda_jacobi_performance
     fi
 fi
